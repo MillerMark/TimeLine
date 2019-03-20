@@ -74,6 +74,8 @@ namespace TimeLineControl
 			}
 		}
 
+		public int Index { get; set; }
+
 
 		public TimeLineEntry()
 		{

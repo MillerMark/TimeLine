@@ -27,6 +27,7 @@ namespace TimeLineControl
 			timeLineData.AddEntry(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(3), "Test 1", null);
 			timeLineData.AddEntry(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(2), "Test 2", null);
 			timeLine.ItemsSource = timeLineData.Entries;
+			timeLine.TotalDuration = TimeSpan.FromSeconds(5);
 		}
 
 		//private ObservableCollection<TimeLineData> _timeLines = new ObservableCollection<TimeLineData>();

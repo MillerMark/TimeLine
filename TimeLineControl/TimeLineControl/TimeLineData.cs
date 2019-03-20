@@ -8,7 +8,7 @@ namespace TimeLineControl
 {
 	public class TimeLineData : MyObservableObject
 	{
-		TimeSpan totalDuration;
+		//TimeSpan totalDuration;
 		private ObservableCollection<TimeLineEntry> entries = new ObservableCollection<TimeLineEntry>();
 
 		public TimeLineData()
@@ -16,17 +16,17 @@ namespace TimeLineControl
 
 		}
 
-		public TimeSpan TotalDuration
-		{
-			get { return totalDuration; }
-			set
-			{
-				if (totalDuration == value)
-					return;
-				totalDuration = value;
-				OnPropertyChanged();
-			}
-		}
+		//public TimeSpan TotalDuration
+		//{
+		//	get { return totalDuration; }
+		//	set
+		//	{
+		//		if (totalDuration == value)
+		//			return;
+		//		totalDuration = value;
+		//		OnPropertyChanged();
+		//	}
+		//}
 
 		public ObservableCollection<TimeLineEntry> Entries
 		{
@@ -47,7 +47,7 @@ namespace TimeLineControl
 		}
 		public void AddEntry(TimeSpan start, TimeSpan duration, string name, object data)
 		{
-			TimeLineEntry timeLineEntry = new TimeLineEntry() { Start = start, Duration = duration, Name = name, Data = data };
+			TimeLineEntry timeLineEntry = new TimeLineEntry() { Start = start, Duration = duration, Name = name, Data = data, Index = Entries.Count };
 			Entries.Add(timeLineEntry);
 		}
 	}
