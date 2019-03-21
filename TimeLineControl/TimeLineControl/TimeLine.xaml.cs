@@ -96,10 +96,13 @@ namespace TimeLineControl
 			if (entry == null)
 				return;
 			
-			AdornerLayer myAdornerLayer = AdornerLayer.GetAdornerLayer(rectangle);
+			AdornerLayer adornerLayer = AdornerLayer.GetAdornerLayer(rectangle);
 			EventTimeAdorner adorner = new EventTimeAdorner(rectangle);
+
+			RemoveRectangleAdorner(rectangle, adornerLayer);    // Solves issue that happens only when reaching breakpoint after mouse down.
+
 			adorners.Add(rectangle, adorner);
-			myAdornerLayer.Add(adorner);
+			adornerLayer.Add(adorner);
 
 			if (eventMoveType == EventMoveType.Start)
 			{
@@ -116,6 +119,15 @@ namespace TimeLineControl
 
 
 			e.Handled = true;
+		}
+
+		private void RemoveRectangleAdorner(Rectangle rectangle, AdornerLayer adornerLayer)
+		{
+			if (!adorners.ContainsKey(rectangle))
+				return;
+
+			adornerLayer.Remove(adorners[rectangle]);
+			adorners.Remove(rectangle);
 		}
 
 		public enum EventMoveType

@@ -9,6 +9,7 @@ namespace TimeLineControl
 	public class TimeLineEntry : MyObservableObject
 	{
 		//private fields...
+		bool durationLocked;
 		TimeSpan duration;
 		TimeSpan start;
 
@@ -25,7 +26,29 @@ namespace TimeLineControl
 			}
 		}
 
-		
+		public bool DurationLocked
+		{
+			get { return durationLocked; }
+			set
+			{
+				if (durationLocked == value)
+					return;
+				durationLocked = value;
+				OnPropertyChanged();
+				OnPropertyChanged("DurationUnlocked");
+			}
+		}
+
+		[EditorBrowsable(EditorBrowsableState.Never)]
+		public bool DurationUnlocked
+		{
+			get { return !DurationLocked; }
+			set
+			{
+				DurationLocked = !value;
+			}
+		}
+
 		public TimeSpan Duration
 		{
 			get { return duration; }

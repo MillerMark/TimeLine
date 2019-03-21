@@ -1,32 +1,22 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace TimeLineControl
 {
 	public class TimeLineData : MyObservableObject
 	{
-		//TimeSpan totalDuration;
 		private ObservableCollection<TimeLineEntry> entries = new ObservableCollection<TimeLineEntry>();
 
 		public TimeLineData()
 		{
-
+			entries.CollectionChanged += Entries_CollectionChanged;
 		}
 
-		//public TimeSpan TotalDuration
-		//{
-		//	get { return totalDuration; }
-		//	set
-		//	{
-		//		if (totalDuration == value)
-		//			return;
-		//		totalDuration = value;
-		//		OnPropertyChanged();
-		//	}
-		//}
+		private void Entries_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		{
+			OnPropertyChanged("Entries");
+		}
 
 		public ObservableCollection<TimeLineEntry> Entries
 		{
@@ -37,18 +27,21 @@ namespace TimeLineControl
 			set
 			{
 				if (entries == value)
-				{
 					return;
-				}
+
+				if (entries != null)
+					entries.CollectionChanged -= Entries_CollectionChanged;
 
 				entries = value;
 				OnPropertyChanged();
 			}
 		}
-		public void AddEntry(TimeSpan start, TimeSpan duration, string name, object data)
+
+		public TimeLineEntry AddEntry(TimeSpan start, TimeSpan duration, string name, object data)
 		{
 			TimeLineEntry timeLineEntry = new TimeLineEntry() { Start = start, Duration = duration, Name = name, Data = data, Index = Entries.Count };
 			Entries.Add(timeLineEntry);
+			return timeLineEntry;
 		}
 	}
 }

@@ -8,6 +8,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
 	<UserControl.Resources>
 		<local:TimeLineEntryConverter x:Key="timeLineEntryConverter"/>
+		<BooleanToVisibilityConverter x:Key="boolToVisibilityConverter" />
 	</UserControl.Resources>
 	<ListBox x:Name="lbTimeEntries" Background="{Binding Background, RelativeSource={RelativeSource Mode=FindAncestor, 
                                  AncestorType={x:Type UserControl}}}" MouseWheel="LbTimeEntries_MouseWheel">
@@ -46,7 +47,7 @@
 							</MultiBinding>
 						</Rectangle.Width>
 					</Rectangle>
-					<Rectangle Tag="{Binding Index}" Cursor="SizeWE" Width="6" Height="24" Fill="#FF778FBF" VerticalAlignment="Stretch" HorizontalAlignment="Left" PreviewMouseDown="ResizeRectangle_PreviewMouseDown" PreviewMouseMove="ResizeRectangle_PreviewMouseMove" PreviewMouseUp="Rectangle_PreviewMouseUp">
+					<Rectangle Tag="{Binding Index}" Visibility="{Binding Path=DurationUnlocked, Converter={StaticResource boolToVisibilityConverter} }" Cursor="SizeWE" Width="6" Height="24" Fill="#FF778FBF" VerticalAlignment="Stretch" HorizontalAlignment="Left" PreviewMouseDown="ResizeRectangle_PreviewMouseDown" PreviewMouseMove="ResizeRectangle_PreviewMouseMove" PreviewMouseUp="Rectangle_PreviewMouseUp">
 						<Rectangle.Margin>
 							<MultiBinding Converter="{StaticResource timeLineEntryConverter}">
 								<Binding Path="TotalDuration">
@@ -63,7 +64,7 @@
 							</MultiBinding>
 						</Rectangle.Margin>
 					</Rectangle>
-					<TextBlock Text="{Binding Name}" Height="Auto" Foreground="White" Padding="4,3,4,3" IsHitTestVisible="False">
+					<TextBlock Text="{Binding Name}" Height="Auto" Foreground="White" Padding="3,3,3,3" IsHitTestVisible="False">
 						<TextBlock.Margin>
 							<MultiBinding Converter="{StaticResource timeLineEntryConverter}">
 								<Binding Path="TotalDuration">

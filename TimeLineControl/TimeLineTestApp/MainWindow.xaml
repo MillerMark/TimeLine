@@ -1,14 +1,15 @@
-﻿<Window x:Class="TimeLineControl.MainWindow"
+﻿<Window x:Class="TimeLineTestApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TimeLineControl"
+        xmlns:local="clr-namespace:TimeLineTestApp"
+        xmlns:tl="clr-namespace:TimeLineControl;assembly=TimeLineControl"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-		<local:TimeLine Background="White" x:Name="timeLine">
-			
-		</local:TimeLine>
-    </Grid>
+		<tl:TimeLine Background="White" x:Name="timeLine" TotalDuration="0:0:5">
+
+		</tl:TimeLine>
+	</Grid>
 </Window>

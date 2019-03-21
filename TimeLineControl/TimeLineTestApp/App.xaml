@@ -1,7 +1,7 @@
-﻿<Application x:Class="TimeLineControl.App"
+﻿<Application x:Class="TimeLineTestApp.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:TimeLineControl"
+             xmlns:local="clr-namespace:TimeLineTestApp"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
          

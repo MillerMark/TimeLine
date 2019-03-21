@@ -7,8 +7,7 @@ namespace TimeLineControl
 {
 	public class TimeLineEntryConverter : IMultiValueConverter
 	{
-		// TODO: Find the actual width of the parenting Grid in the Visual Tree.
-		public const double HackPercentWidth = 0.9;
+		public const double HackPercentWidth = 0.9; // TODO: Find the actual width of the parenting Grid in the Visual Tree.
 		public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
 		{
 			TimeSpan timelineTotalDuration = (TimeSpan)values[0];

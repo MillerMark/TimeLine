@@ -9,14 +9,10 @@ namespace TimeLineControl
 {
 	public class EventTimeAdorner : Adorner
 	{
-		// Be sure to call the base class constructor.
-		public EventTimeAdorner(UIElement adornedElement)
-			: base(adornedElement)
+		public EventTimeAdorner(UIElement adornedElement) : base(adornedElement)
 		{
 		}
 
-		// A common way to implement an adorner's rendering behavior is to override the OnRender
-		// method, which is called by the layout system as part of a rendering pass.
 		protected override void OnRender(DrawingContext drawingContext)
 		{
 			Rect adornedElementRect = new Rect(this.AdornedElement.DesiredSize);
@@ -31,17 +27,21 @@ namespace TimeLineControl
 				CultureInfo.GetCultureInfo("en-us"),
 				FlowDirection.LeftToRight,
 				new Typeface("Verdana"),
-				16,
+				12,
 				Brushes.Black, VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
 			double textWidth = formattedText.Width;
 			double textHeight = formattedText.Height;
-			Point textTopLeft = adornedElementRect.BottomLeft;
-			Point bottomRight = new Point(textTopLeft.X + textWidth, textTopLeft.Y + textHeight);
-			Rect rect = new Rect(textTopLeft, bottomRight);
+			const double horizontalMargin = 3;
+			const double verticalMargin = 2;
+			Point adornerTopLeft = adornedElementRect.BottomLeft;
+			Point bottomRight = new Point(adornerTopLeft.X + textWidth + horizontalMargin * 2, adornerTopLeft.Y + textHeight + verticalMargin * 2);
+			Rect rect = new Rect(adornerTopLeft, bottomRight);
 			const double radius = 3;
 			drawingContext.DrawRoundedRectangle(brush, pen, rect, radius, radius);
 
+			Point textTopLeft = adornerTopLeft;
+			textTopLeft.Offset(horizontalMargin, verticalMargin);
 			drawingContext.DrawText(formattedText, textTopLeft);
 		}
 
