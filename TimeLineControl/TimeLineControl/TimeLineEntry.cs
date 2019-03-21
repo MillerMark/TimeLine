@@ -21,6 +21,7 @@ namespace TimeLineControl
 					return;
 				start = value;
 				OnPropertyChanged();
+				OnPropertyChanged("End");
 			}
 		}
 
@@ -34,8 +35,18 @@ namespace TimeLineControl
 					return;
 				duration = value;
 				OnPropertyChanged();
+				OnPropertyChanged("End");
 			}
 		}
+
+		public TimeSpan End
+		{
+			get
+			{
+				return start + duration;
+			}
+		}
+		
 
 		string name;
 		public string Name

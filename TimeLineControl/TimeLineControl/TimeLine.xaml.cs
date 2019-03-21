@@ -21,7 +21,7 @@ namespace TimeLineControl
 	/// </summary>
 	public partial class TimeLine : UserControl
 	{
-		TimeSpan mouseDownStartTime;
+		TimeSpan mouseDownTime;
 		public TimeLine()
 		{
 			InitializeComponent();
@@ -30,6 +30,7 @@ namespace TimeLineControl
 		public static readonly DependencyProperty TotalDurationProperty = DependencyProperty.Register("TotalDuration", typeof(TimeSpan), typeof(TimeLine), new FrameworkPropertyMetadata(TimeSpan.Zero, new PropertyChangedCallback(OnTotalDurationChanged), new CoerceValueCallback(OnCoerceTotalDuration)));
 		double mouseDownX;
 		TimeLineEntry entry;
+		
 
 
 		private static object OnCoerceTotalDuration(DependencyObject o, object value)
@@ -74,17 +75,13 @@ namespace TimeLineControl
 		}
 		public IEnumerable ItemsSource { get => lbTimeEntries.ItemsSource; set => lbTimeEntries.ItemsSource = value; }
 
-		private T FindParent<T>(DependencyObject child) where T : DependencyObject
+		Dictionary<Rectangle, EventTimeAdorner> adorners = new Dictionary<Rectangle, EventTimeAdorner>();
+		private void Rectangle_PreviewMouseDown(object sender, MouseButtonEventArgs e)
 		{
-			DependencyObject immediateParent = VisualTreeHelper.GetParent(child);
-			T parent = immediateParent as T;
-			if (parent != null)
-				return parent;
-			else
-				return FindParent<T>(immediateParent);
+			HandleMouseDown(sender, e, EventMoveType.Start);
 		}
 
-		private void Rectangle_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+		private void HandleMouseDown(object sender, MouseButtonEventArgs e, EventMoveType eventMoveType)
 		{
 			e.Handled = false;
 
@@ -98,28 +95,48 @@ namespace TimeLineControl
 			entry = lbTimeEntries.SelectedItem as TimeLineEntry;
 			if (entry == null)
 				return;
+			
+			AdornerLayer myAdornerLayer = AdornerLayer.GetAdornerLayer(rectangle);
+			EventTimeAdorner adorner = new EventTimeAdorner(rectangle);
+			adorners.Add(rectangle, adorner);
+			myAdornerLayer.Add(adorner);
 
-			//ListBoxItem parentListBoxItem = FindParent<ListBoxItem>(sender as DependencyObject);
-			//if (parentListBoxItem != null)
-			//{
-			//	TimeLineEntry timeLineEntry = parentListBoxItem.DataContext as TimeLineEntry;
-			//	if (timeLineEntry != null)
-			//	{
-			//		if (timeLineEntry != entry)
-			//			return;
-			//	}
-			//}
+			if (eventMoveType == EventMoveType.Start)
+			{
+				mouseDownTime = entry.Start;
+				adorner.EventTime = entry.Start;
+			}
+			else
+			{
+				mouseDownTime = entry.End;
+				adorner.EventTime = entry.Duration;
+			}
 
-			mouseDownStartTime = entry.Start;
 			rectangle.CaptureMouse();
+
 
 			e.Handled = true;
 		}
 
+		public enum EventMoveType
+		{
+			Start,
+			Duration
+		}
+
 		private void Rectangle_PreviewMouseMove(object sender, MouseEventArgs e)
+		{
+			HandleMouseMove(sender, e, EventMoveType.Start);
+		}
+
+		private void HandleMouseMove(object sender, MouseEventArgs e, EventMoveType eventMoveType)
 		{
 			e.Handled = false;
 			if (entry == null)
+				return;
+
+			Rectangle rectangle = sender as Rectangle;
+			if (rectangle == null)
 				return;
 
 			double thisX = e.GetPosition(lbTimeEntries).X;
@@ -128,13 +145,33 @@ namespace TimeLineControl
 
 			TimeSpan timeMoved = TimeSpan.FromSeconds(distanceMoved / pixelsPerSecond);
 
-			TimeSpan newStart = mouseDownStartTime + timeMoved;
-			if (newStart.TotalSeconds < 0)
-				entry.Start = TimeSpan.FromSeconds(0);
-			else
-				entry.Start = newStart;
-		}
+			EventTimeAdorner eventTimeAdorner = null;
+			if (adorners.ContainsKey(rectangle))
+				eventTimeAdorner = adorners[rectangle];
 
+				TimeSpan newTime = mouseDownTime + timeMoved;
+			if (eventMoveType == EventMoveType.Start)
+			{
+				if (newTime.TotalSeconds < 0)
+					entry.Start = TimeSpan.FromSeconds(0);
+				else
+					entry.Start = newTime;
+				if (eventTimeAdorner != null)
+					eventTimeAdorner.EventTime = entry.Start;
+			}
+			else
+			{
+				TimeSpan newDuration = newTime - entry.Start;
+				TimeSpan minDuration = TimeSpan.FromSeconds(0.1);
+				if (newDuration < minDuration)
+					newDuration = minDuration;
+				entry.Duration = newDuration;
+				if (eventTimeAdorner != null)
+					eventTimeAdorner.EventTime = entry.Duration;
+			}
+
+			e.Handled = true;
+		}
 
 		private void Rectangle_PreviewMouseUp(object sender, MouseButtonEventArgs e)
 		{
@@ -142,12 +179,30 @@ namespace TimeLineControl
 			Rectangle rectangle = sender as Rectangle;
 			if (rectangle == null)
 				return;
+
+			if (adorners.ContainsKey(rectangle))
+			{
+				AdornerLayer myAdornerLayer = AdornerLayer.GetAdornerLayer(rectangle);
+				myAdornerLayer.Remove(adorners[rectangle]);
+				adorners.Remove(rectangle);
+			}
+			
 			rectangle.ReleaseMouseCapture();
 		}
 
 		private void LbTimeEntries_MouseWheel(object sender, MouseWheelEventArgs e)
 		{
+			// TODO: Add Mouse Wheel support.
+		}
 
+		private void ResizeRectangle_PreviewMouseMove(object sender, MouseEventArgs e)
+		{
+			HandleMouseMove(sender, e, EventMoveType.Duration);
+		}
+
+		private void ResizeRectangle_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+		{
+			HandleMouseDown(sender, e, EventMoveType.Duration);
 		}
 	}
 }

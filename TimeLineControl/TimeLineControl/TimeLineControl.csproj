@@ -58,6 +58,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="MyObservableObject.cs" />
+    <Compile Include="EventTimeAdorner.cs" />
     <Compile Include="TimeLine.xaml.cs">
       <DependentUpon>TimeLine.xaml</DependentUpon>
     </Compile>

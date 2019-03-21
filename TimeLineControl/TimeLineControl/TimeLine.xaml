@@ -12,9 +12,9 @@
 	<ListBox x:Name="lbTimeEntries" Background="{Binding Background, RelativeSource={RelativeSource Mode=FindAncestor, 
                                  AncestorType={x:Type UserControl}}}" MouseWheel="LbTimeEntries_MouseWheel">
 		<ItemsControl.ItemTemplate>
-			<DataTemplate>
+			<DataTemplate DataType="{x:Type local:TimeLineEntry}">
 				<Grid>
-					<Rectangle Grid.Column="1" Tag="{Binding Index}" Height="24" Fill="#FF2C4B8A" VerticalAlignment="Stretch" HorizontalAlignment="Left" PreviewMouseDown="Rectangle_PreviewMouseDown" PreviewMouseMove="Rectangle_PreviewMouseMove" PreviewMouseUp="Rectangle_PreviewMouseUp">
+					<Rectangle Tag="{Binding Index}" Cursor="Hand" Height="24" Fill="#FF2C4B8A" VerticalAlignment="Stretch" HorizontalAlignment="Left" PreviewMouseDown="Rectangle_PreviewMouseDown" PreviewMouseMove="Rectangle_PreviewMouseMove" PreviewMouseUp="Rectangle_PreviewMouseUp">
 						<Rectangle.Margin>
 							<MultiBinding Converter="{StaticResource timeLineEntryConverter}">
 								<Binding Path="TotalDuration">
@@ -45,6 +45,23 @@
 								</Binding>
 							</MultiBinding>
 						</Rectangle.Width>
+					</Rectangle>
+					<Rectangle Tag="{Binding Index}" Cursor="SizeWE" Width="6" Height="24" Fill="#FF778FBF" VerticalAlignment="Stretch" HorizontalAlignment="Left" PreviewMouseDown="ResizeRectangle_PreviewMouseDown" PreviewMouseMove="ResizeRectangle_PreviewMouseMove" PreviewMouseUp="Rectangle_PreviewMouseUp">
+						<Rectangle.Margin>
+							<MultiBinding Converter="{StaticResource timeLineEntryConverter}">
+								<Binding Path="TotalDuration">
+									<Binding.RelativeSource>
+										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
+									</Binding.RelativeSource>
+								</Binding>
+								<Binding Path="End"/>
+								<Binding Path="ActualWidth">
+									<Binding.RelativeSource>
+										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
+									</Binding.RelativeSource>
+								</Binding>
+							</MultiBinding>
+						</Rectangle.Margin>
 					</Rectangle>
 					<TextBlock Text="{Binding Name}" Height="Auto" Foreground="White" Padding="4,3,4,3" IsHitTestVisible="False">
 						<TextBlock.Margin>
