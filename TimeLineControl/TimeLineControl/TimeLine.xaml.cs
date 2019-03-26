@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -215,6 +216,28 @@ namespace TimeLineControl
 		private void ResizeRectangle_PreviewMouseDown(object sender, MouseButtonEventArgs e)
 		{
 			HandleMouseDown(sender, e, EventMoveType.Duration);
+		}
+
+		private void MenuItem_Click(object sender, RoutedEventArgs e)
+		{
+			if (!(sender is MenuItem menuItem && menuItem.DataContext is TimeLineEntry timeLineEntry))
+				return;
+
+			FrmSetDuration frmSetDuration = new FrmSetDuration();
+			Point screenPos = menuItem.PointToScreen(new Point(0, 0));
+			if (timeLineEntry.Duration == Timeout.InfiniteTimeSpan)
+				frmSetDuration.Duration = double.PositiveInfinity;
+			else
+				frmSetDuration.Duration = timeLineEntry.Duration.TotalSeconds;
+			frmSetDuration.Left = screenPos.X;
+			frmSetDuration.Top = screenPos.Y;
+			if (frmSetDuration.ShowDialog() == true)
+			{
+				if (double.IsInfinity(frmSetDuration.Duration))
+					timeLineEntry.Duration = Timeout.InfiniteTimeSpan;
+				else
+					timeLineEntry.Duration = TimeSpan.FromSeconds(frmSetDuration.Duration);
+			}
 		}
 	}
 }

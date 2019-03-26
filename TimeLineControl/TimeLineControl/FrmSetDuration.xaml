@@ -1,0 +1,38 @@
+﻿<Window x:Class="TimeLineControl.FrmSetDuration"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TimeLineControl"
+        mc:Ignorable="d"
+        Title="FrmSetDuration" Height="Auto" Width="Auto" ResizeMode="NoResize" SizeToContent="WidthAndHeight" ShowInTaskbar="False"
+				Loaded="Window_Loaded">
+	<Grid x:Name="grdMain" FocusManager.FocusedElement="{Binding ElementName=tbxDuration}">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition Width="Auto"/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		<TextBlock Text="Duration: " Width="Auto" Height="Auto"/>
+		<StackPanel x:Name="spDuration" Orientation="Horizontal" Grid.Column="1">
+			<TextBox x:Name="tbxDuration" Grid.Column="1" >
+				0
+			</TextBox>
+			<TextBlock Text="(seconds)" Width="Auto" Height="Auto" Foreground="Gray"/>
+		</StackPanel>
+		<CheckBox x:Name="ckIsInfinity" Checked="CkIsInfinity_Checked" Grid.Column="1" Grid.Row="1" Unchecked="CkIsInfinity_Unchecked" >
+			Infinity
+		</CheckBox>
+		
+		<StackPanel x:Name="spConfirmButtons" Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="0, 5, 5, 5">
+			<Button IsDefault="True" Name="btnDialogOk" Click="BtnDialogOk_Click" MinWidth="60" Margin="0,0,10,0">_OK</Button>
+			<Button IsCancel="True" MinWidth="60">_Cancel</Button>
+		</StackPanel>
+
+	</Grid>
+</Window>

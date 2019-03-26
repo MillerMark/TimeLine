@@ -16,6 +16,11 @@
 			<DataTemplate DataType="{x:Type local:TimeLineEntry}">
 				<Grid>
 					<Rectangle Tag="{Binding Index}" Cursor="Hand" Height="24" Fill="#FF2C4B8A" VerticalAlignment="Stretch" HorizontalAlignment="Left" PreviewMouseDown="Rectangle_PreviewMouseDown" PreviewMouseMove="Rectangle_PreviewMouseMove" PreviewMouseUp="Rectangle_PreviewMouseUp">
+						<Rectangle.ContextMenu>
+							<ContextMenu>
+								<MenuItem Header="Set Duration..." Click="MenuItem_Click"></MenuItem>
+							</ContextMenu>
+						</Rectangle.ContextMenu>
 						<Rectangle.Margin>
 							<MultiBinding Converter="{StaticResource timeLineEntryConverter}">
 								<Binding Path="TotalDuration">
@@ -29,6 +34,7 @@
 										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
 									</Binding.RelativeSource>
 								</Binding>
+								<Binding Path="Start"/>
 							</MultiBinding>
 						</Rectangle.Margin>
 						<Rectangle.Width>
@@ -44,6 +50,7 @@
 										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
 									</Binding.RelativeSource>
 								</Binding>
+								<Binding Path="Start"/>
 							</MultiBinding>
 						</Rectangle.Width>
 					</Rectangle>
@@ -61,6 +68,7 @@
 										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
 									</Binding.RelativeSource>
 								</Binding>
+								<Binding Path="Start"/>
 							</MultiBinding>
 						</Rectangle.Margin>
 					</Rectangle>
@@ -78,6 +86,7 @@
 										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
 									</Binding.RelativeSource>
 								</Binding>
+								<Binding Path="Start"/>
 							</MultiBinding>
 						</TextBlock.Margin>
 						<TextBlock.Width>
@@ -93,6 +102,7 @@
 										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
 									</Binding.RelativeSource>
 								</Binding>
+								<Binding Path="Start"/>
 							</MultiBinding>
 						</TextBlock.Width>
 					</TextBlock>

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:TimeLineTestApp"
         xmlns:tl="clr-namespace:TimeLineControl;assembly=TimeLineControl"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800" WindowStartupLocation="CenterOwner" Left="3000" Top="-1000">
     <Grid>
 		<tl:TimeLine Background="White" x:Name="timeLine" TotalDuration="0:0:5">
 
