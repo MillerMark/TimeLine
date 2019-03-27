@@ -3,12 +3,14 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace TimeLineControl
 {
 	public class TimeLineEntry : MyObservableObject
 	{
 		//private fields...
+		bool canResize;
 		bool durationLocked;
 		TimeSpan duration;
 		TimeSpan start;
@@ -39,6 +41,23 @@ namespace TimeLineControl
 			}
 		}
 
+		
+		public bool CanResize
+		{
+			get { return !DurationLocked && !IsInfinite; }
+		}
+
+
+		public bool IsInfinite
+		{
+			get
+			{
+				return Duration == Timeout.InfiniteTimeSpan;
+			}
+		}
+		
+
+
 		[EditorBrowsable(EditorBrowsableState.Never)]
 		public bool DurationUnlocked
 		{
@@ -59,6 +78,8 @@ namespace TimeLineControl
 				duration = value;
 				OnPropertyChanged();
 				OnPropertyChanged("End");
+				OnPropertyChanged("CanResize");
+				OnPropertyChanged("IsInfinite");
 			}
 		}
 

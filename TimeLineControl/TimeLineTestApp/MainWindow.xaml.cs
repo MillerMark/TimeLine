@@ -27,9 +27,12 @@ namespace TimeLineTestApp
 			InitializeComponent();
 			timeLineData.AddEntry(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(3), "Test 1", null);
 			timeLineData.AddEntry(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(2), "Test 2", null);
+
+			timeLine.ItemsSource = timeLineData.Entries;
+			timeLine.MinEntryDuration = 0.3;
+
 			timeLineData.AddEntry(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1), "Test 3", null);
 			timeLineData.AddEntry(TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(0.5), "Test 4", null).DurationLocked = true;
-			timeLine.ItemsSource = timeLineData.Entries;
 			//timeLine.TotalDuration = TimeSpan.FromSeconds(5);
 		}
 	}

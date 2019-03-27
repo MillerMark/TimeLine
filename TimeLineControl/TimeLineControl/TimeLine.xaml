@@ -15,6 +15,7 @@
 		<ItemsControl.ItemTemplate>
 			<DataTemplate DataType="{x:Type local:TimeLineEntry}">
 				<Grid>
+					<!-- Main Rectangle -->
 					<Rectangle Tag="{Binding Index}" Cursor="Hand" Height="24" Fill="#FF2C4B8A" VerticalAlignment="Stretch" HorizontalAlignment="Left" PreviewMouseDown="Rectangle_PreviewMouseDown" PreviewMouseMove="Rectangle_PreviewMouseMove" PreviewMouseUp="Rectangle_PreviewMouseUp">
 						<Rectangle.ContextMenu>
 							<ContextMenu>
@@ -35,6 +36,11 @@
 									</Binding.RelativeSource>
 								</Binding>
 								<Binding Path="Start"/>
+								<Binding Path="End">
+									<Binding.RelativeSource>
+										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
+									</Binding.RelativeSource>
+								</Binding>
 							</MultiBinding>
 						</Rectangle.Margin>
 						<Rectangle.Width>
@@ -51,10 +57,17 @@
 									</Binding.RelativeSource>
 								</Binding>
 								<Binding Path="Start"/>
+								<Binding Path="End">
+									<Binding.RelativeSource>
+										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
+									</Binding.RelativeSource>
+								</Binding>
 							</MultiBinding>
 						</Rectangle.Width>
 					</Rectangle>
-					<Rectangle Tag="{Binding Index}" Visibility="{Binding Path=DurationUnlocked, Converter={StaticResource boolToVisibilityConverter} }" Cursor="SizeWE" Width="6" Height="24" Fill="#FF778FBF" VerticalAlignment="Stretch" HorizontalAlignment="Left" PreviewMouseDown="ResizeRectangle_PreviewMouseDown" PreviewMouseMove="ResizeRectangle_PreviewMouseMove" PreviewMouseUp="Rectangle_PreviewMouseUp">
+
+					<!-- Resize Rectangle -->
+					<Rectangle Tag="{Binding Index}" Visibility="{Binding Path=CanResize, Converter={StaticResource boolToVisibilityConverter} }" Cursor="SizeWE" Width="6" Height="24" Fill="#FF778FBF" VerticalAlignment="Stretch" HorizontalAlignment="Left" PreviewMouseDown="ResizeRectangle_PreviewMouseDown" PreviewMouseMove="ResizeRectangle_PreviewMouseMove" PreviewMouseUp="Rectangle_PreviewMouseUp">
 						<Rectangle.Margin>
 							<MultiBinding Converter="{StaticResource timeLineEntryConverter}">
 								<Binding Path="TotalDuration">
@@ -69,9 +82,16 @@
 									</Binding.RelativeSource>
 								</Binding>
 								<Binding Path="Start"/>
+								<Binding Path="End">
+									<Binding.RelativeSource>
+										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
+									</Binding.RelativeSource>
+								</Binding>
 							</MultiBinding>
 						</Rectangle.Margin>
 					</Rectangle>
+					
+					<!--Entry Name-->
 					<TextBlock Text="{Binding Name}" Height="Auto" Foreground="White" Padding="3,3,3,3" IsHitTestVisible="False">
 						<TextBlock.Margin>
 							<MultiBinding Converter="{StaticResource timeLineEntryConverter}">
@@ -87,6 +107,11 @@
 									</Binding.RelativeSource>
 								</Binding>
 								<Binding Path="Start"/>
+								<Binding Path="End">
+									<Binding.RelativeSource>
+										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
+									</Binding.RelativeSource>
+								</Binding>
 							</MultiBinding>
 						</TextBlock.Margin>
 						<TextBlock.Width>
@@ -103,8 +128,39 @@
 									</Binding.RelativeSource>
 								</Binding>
 								<Binding Path="Start"/>
+								<Binding Path="End">
+									<Binding.RelativeSource>
+										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
+									</Binding.RelativeSource>
+								</Binding>
 							</MultiBinding>
 						</TextBlock.Width>
+					</TextBlock>
+
+					<!--Infinity Marker-->
+					<TextBlock Text="∞" Width="20" Foreground="#FFD1D9E8" HorizontalAlignment="Right" Visibility="{Binding Path=IsInfinite, Converter={StaticResource boolToVisibilityConverter} }"  Height="Auto" Padding="3,3,3,3" IsHitTestVisible="False">
+						<TextBlock.Margin>
+							<MultiBinding Converter="{StaticResource timeLineEntryConverter}">
+								<Binding Path="TotalDuration">
+									<Binding.RelativeSource>
+										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
+									</Binding.RelativeSource>
+								</Binding>
+								<Binding Path="End"/>
+								<Binding Path="ActualWidth">
+									<Binding.RelativeSource>
+										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
+									</Binding.RelativeSource>
+								</Binding>
+								<Binding Path="Start"/>
+								<Binding Path="End">
+									<Binding.RelativeSource>
+										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
+									</Binding.RelativeSource>
+								</Binding>
+							</MultiBinding>
+						</TextBlock.Margin>
+						
 					</TextBlock>
 				</Grid>
 			</DataTemplate>

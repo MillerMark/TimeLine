@@ -20,7 +20,7 @@
 		</Grid.RowDefinitions>
 		<TextBlock Text="Duration: " Width="Auto" Height="Auto"/>
 		<StackPanel x:Name="spDuration" Orientation="Horizontal" Grid.Column="1">
-			<TextBox x:Name="tbxDuration" Grid.Column="1" >
+			<TextBox x:Name="tbxDuration" Grid.Column="1" TextChanged="TbxDuration_TextChanged" >
 				0
 			</TextBox>
 			<TextBlock Text="(seconds)" Width="Auto" Height="Auto" Foreground="Gray"/>

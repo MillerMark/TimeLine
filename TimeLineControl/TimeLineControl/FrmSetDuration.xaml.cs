@@ -22,6 +22,7 @@ namespace TimeLineControl
 		const string STR_Infinity = "∞";
 		string lastSetDurationStr;
 		string lastRealDurationStr;
+		bool changingInternally;
 		public double Duration
 		{
 			get
@@ -52,6 +53,8 @@ namespace TimeLineControl
 
 		private void CkIsInfinity_Checked(object sender, RoutedEventArgs e)
 		{
+			if (changingInternally)
+				return;
 			//tbxDuration.Text = STR_Infinity;
 			Duration = double.PositiveInfinity;
 		}
@@ -63,12 +66,29 @@ namespace TimeLineControl
 
 		private void CkIsInfinity_Unchecked(object sender, RoutedEventArgs e)
 		{
+			if (changingInternally)
+				return;
 			tbxDuration.Text = lastRealDurationStr;
 		}
 
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			tbxDuration.Text = Duration.ToString();
+		}
+
+		private void TbxDuration_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			if (ckIsInfinity == null)
+				return;
+			changingInternally = true;
+			try
+			{
+				ckIsInfinity.IsChecked = tbxDuration.Text == STR_Infinity;
+			}
+			finally
+			{
+				changingInternally = false;
+			}
 		}
 	}
 }

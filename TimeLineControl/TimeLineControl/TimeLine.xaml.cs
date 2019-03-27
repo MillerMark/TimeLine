@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -22,18 +24,75 @@ namespace TimeLineControl
 	/// </summary>
 	public partial class TimeLine : UserControl
 	{
+		public static readonly DependencyProperty MinEntryDurationProperty = DependencyProperty.Register("MinEntryDuration", typeof(double), typeof(TimeLine), new FrameworkPropertyMetadata(0.1, new PropertyChangedCallback(OnMinEntryDurationChanged), new CoerceValueCallback(OnCoerceMinEntryDuration)));
+		
+
 		TimeSpan mouseDownTime;
+
 		public TimeLine()
 		{
 			InitializeComponent();
+			MinEntryDuration = 0.1;
 		}
 
 		public static readonly DependencyProperty TotalDurationProperty = DependencyProperty.Register("TotalDuration", typeof(TimeSpan), typeof(TimeLine), new FrameworkPropertyMetadata(TimeSpan.Zero, new PropertyChangedCallback(OnTotalDurationChanged), new CoerceValueCallback(OnCoerceTotalDuration)));
 		double mouseDownX;
 		TimeLineEntry entry;
-		
 
 
+
+		private static object OnCoerceMinEntryDuration(DependencyObject o, object value)
+		{
+			TimeLine timeLine = o as TimeLine;
+			if (timeLine != null)
+				return timeLine.OnCoerceMinEntryDuration((double)value);
+			else
+				return value;
+		}
+
+		private static void OnMinEntryDurationChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
+		{
+			TimeLine timeLine = o as TimeLine;
+			if (timeLine != null)
+				timeLine.OnMinEntryDurationChanged((double)e.OldValue, (double)e.NewValue);
+		}
+
+		protected virtual double OnCoerceMinEntryDuration(double value)
+		{
+			// TODO: Keep the proposed value within the desired range.
+			return value;
+		}
+
+		protected virtual void OnMinEntryDurationChanged(double oldValue, double newValue)
+		{
+			// TODO: Add your property changed side-effects. Descendants can override as well.
+		}
+		private static object OnCoerceEnd(DependencyObject o, object value)
+		{
+			TimeLine timeLine = o as TimeLine;
+			if (timeLine != null)
+				return timeLine.OnCoerceEnd((TimeSpan)value);
+			else
+				return value;
+		}
+
+		private static void OnEndChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
+		{
+			TimeLine timeLine = o as TimeLine;
+			if (timeLine != null)
+				timeLine.OnEndChanged((TimeSpan)e.OldValue, (TimeSpan)e.NewValue);
+		}
+
+		protected virtual TimeSpan OnCoerceEnd(TimeSpan value)
+		{
+			// TODO: Keep the proposed value within the desired range.
+			return value;
+		}
+
+		protected virtual void OnEndChanged(TimeSpan oldValue, TimeSpan newValue)
+		{
+			// TODO: Add your property changed side-effects. Descendants can override as well.
+		}
 		private static object OnCoerceTotalDuration(DependencyObject o, object value)
 		{
 			TimeLine timeLine = o as TimeLine;
@@ -62,6 +121,30 @@ namespace TimeLineControl
 		}
 
 
+		public double MinEntryDuration
+		{
+			// IMPORTANT: To maintain parity between setting a property in XAML and procedural code, do not touch the getter and setter inside this dependency property!
+			get
+			{
+				return (double)GetValue(MinEntryDurationProperty);
+			}
+			set
+			{
+				SetValue(MinEntryDurationProperty, value);
+			}
+		}
+		public TimeSpan End
+		{
+			// IMPORTANT: To maintain parity between setting a property in XAML and procedural code, do not touch the getter and setter inside this dependency property!
+			get
+			{
+				return (TimeSpan)GetValue(EndProperty);
+			}
+			set
+			{
+				SetValue(EndProperty, value);
+			}
+		}
 		public TimeSpan TotalDuration
 		{
 			// IMPORTANT: To maintain parity between setting a property in XAML and procedural code, do not touch the getter and setter inside this dependency property!
@@ -74,7 +157,46 @@ namespace TimeLineControl
 				SetValue(TotalDurationProperty, value);
 			}
 		}
-		public IEnumerable ItemsSource { get => lbTimeEntries.ItemsSource; set => lbTimeEntries.ItemsSource = value; }
+
+		public static readonly DependencyProperty EndProperty = DependencyProperty.Register("End", typeof(TimeSpan), typeof(TimeLine), new FrameworkPropertyMetadata(TimeSpan.Zero, new PropertyChangedCallback(OnEndChanged), new CoerceValueCallback(OnCoerceEnd)));
+
+
+		public IEnumerable ItemsSource
+		{
+			get => lbTimeEntries.ItemsSource; set
+			{
+				if (lbTimeEntries.ItemsSource is INotifyCollectionChanged iNotifyPropertyChanged)
+				{
+					iNotifyPropertyChanged.CollectionChanged -= ItemsSource_CollectionChanged;
+					foreach (TimeLineEntry timeLineEntry in lbTimeEntries.ItemsSource)
+					{
+						timeLineEntry.PropertyChanged -= TimeLineEntry_PropertyChanged;
+					}
+				}
+
+
+				lbTimeEntries.ItemsSource = value;
+
+				if (lbTimeEntries.ItemsSource is INotifyCollectionChanged iNotifyPropertyChanged2)
+				{
+					iNotifyPropertyChanged2.CollectionChanged += ItemsSource_CollectionChanged;
+					foreach (TimeLineEntry timeLineEntry in lbTimeEntries.ItemsSource)
+					{
+						timeLineEntry.PropertyChanged += TimeLineEntry_PropertyChanged;
+					}
+				}
+			}
+		}
+
+		private void TimeLineEntry_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			UpdateTotalDuration();
+		}
+
+		private void ItemsSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			UpdateTotalDuration();
+		}
 
 		Dictionary<Rectangle, EventTimeAdorner> adorners = new Dictionary<Rectangle, EventTimeAdorner>();
 		private void Rectangle_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -96,7 +218,7 @@ namespace TimeLineControl
 			entry = lbTimeEntries.SelectedItem as TimeLineEntry;
 			if (entry == null)
 				return;
-			
+
 			AdornerLayer adornerLayer = AdornerLayer.GetAdornerLayer(rectangle);
 			EventTimeAdorner adorner = new EventTimeAdorner(rectangle);
 
@@ -162,7 +284,7 @@ namespace TimeLineControl
 			if (adorners.ContainsKey(rectangle))
 				eventTimeAdorner = adorners[rectangle];
 
-				TimeSpan newTime = mouseDownTime + timeMoved;
+			TimeSpan newTime = mouseDownTime + timeMoved;
 			if (eventMoveType == EventMoveType.Start)
 			{
 				if (newTime.TotalSeconds < 0)
@@ -175,7 +297,7 @@ namespace TimeLineControl
 			else
 			{
 				TimeSpan newDuration = newTime - entry.Start;
-				TimeSpan minDuration = TimeSpan.FromSeconds(0.1);
+				TimeSpan minDuration = TimeSpan.FromSeconds(MinEntryDuration);
 				if (newDuration < minDuration)
 					newDuration = minDuration;
 				entry.Duration = newDuration;
@@ -186,6 +308,21 @@ namespace TimeLineControl
 			e.Handled = true;
 		}
 
+		void UpdateTotalDuration()
+		{
+			double maxSeconds = 0;
+			foreach (TimeLineEntry timeLineEntry in ItemsSource)
+			{
+				if (timeLineEntry.Duration == System.Threading.Timeout.InfiniteTimeSpan)
+					continue;
+				maxSeconds = Math.Max(maxSeconds, timeLineEntry.End.TotalSeconds);
+			}
+			/* 
+			 var maxValue = (from timelineItem in ItemSource select timelineItem.duration).Max();
+			wil_bennett: .. alternatively: maxValue = ((IEnumerable<TimelineEntry>)ItemSource).Max(t => t.duration)... [untested] */
+
+			End = TimeSpan.FromSeconds(maxSeconds);
+		}
 		private void Rectangle_PreviewMouseUp(object sender, MouseButtonEventArgs e)
 		{
 			entry = null;
@@ -199,8 +336,9 @@ namespace TimeLineControl
 				myAdornerLayer.Remove(adorners[rectangle]);
 				adorners.Remove(rectangle);
 			}
-			
+
 			rectangle.ReleaseMouseCapture();
+			UpdateTotalDuration();
 		}
 
 		private void LbTimeEntries_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -236,7 +374,7 @@ namespace TimeLineControl
 				if (double.IsInfinity(frmSetDuration.Duration))
 					timeLineEntry.Duration = Timeout.InfiniteTimeSpan;
 				else
-					timeLineEntry.Duration = TimeSpan.FromSeconds(frmSetDuration.Duration);
+					timeLineEntry.Duration = TimeSpan.FromSeconds(Math.Max(MinEntryDuration, frmSetDuration.Duration));
 			}
 		}
 	}
