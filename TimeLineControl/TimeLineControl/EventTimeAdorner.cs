@@ -28,7 +28,9 @@ namespace TimeLineControl
 				FlowDirection.LeftToRight,
 				new Typeface("Verdana"),
 				12,
-				Brushes.Black, VisualTreeHelper.GetDpi(this).PixelsPerDip);
+				Brushes.Black
+				// , VisualTreeHelper.GetDpi(this).PixelsPerDip
+				);
 
 			double textWidth = formattedText.Width;
 			double textHeight = formattedText.Height;

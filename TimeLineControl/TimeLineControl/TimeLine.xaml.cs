@@ -204,6 +204,21 @@ namespace TimeLineControl
 			HandleMouseDown(sender, e, EventMoveType.Start);
 		}
 
+		public static T FindParentOfType<T>(DependencyObject child) where T : DependencyObject
+		{
+			if (child == null)
+				return null;
+			DependencyObject parentDepObj = child;
+			do
+			{
+				parentDepObj = VisualTreeHelper.GetParent(parentDepObj);
+				T parent = parentDepObj as T;
+				if (parent != null) return parent;
+			}
+			while (parentDepObj != null);
+			return null;
+		}
+
 		private void HandleMouseDown(object sender, MouseButtonEventArgs e, EventMoveType eventMoveType)
 		{
 			e.Handled = false;
@@ -219,7 +234,8 @@ namespace TimeLineControl
 			if (entry == null)
 				return;
 
-			AdornerLayer adornerLayer = AdornerLayer.GetAdornerLayer(rectangle);
+			AdornerLayer adornerLayer = GetAdornerLayer(rectangle);
+
 			EventTimeAdorner adorner = new EventTimeAdorner(rectangle);
 
 			RemoveRectangleAdorner(rectangle, adornerLayer);    // Solves issue that happens only when reaching breakpoint after mouse down.
@@ -240,8 +256,29 @@ namespace TimeLineControl
 
 			rectangle.CaptureMouse();
 
-
 			e.Handled = true;
+		}
+
+		private static AdornerLayer GetAdornerLayer(FrameworkElement frameworkElement)
+		{
+			AdornerLayer adornerLayer = AdornerLayer.GetAdornerLayer(frameworkElement);
+			AdornerLayer parentAdornerLayer = adornerLayer;
+			AdornerDecorator lastParentAdornerDecorator = null;
+			do
+			{
+				AdornerDecorator parentAdornerDecorator = FindParentOfType<AdornerDecorator>(parentAdornerLayer);
+				if (lastParentAdornerDecorator == parentAdornerDecorator)
+					break;
+				lastParentAdornerDecorator = parentAdornerDecorator;
+				if (parentAdornerDecorator == null)
+					parentAdornerLayer = null;
+				else
+					parentAdornerLayer = parentAdornerDecorator.AdornerLayer;
+
+				if (parentAdornerLayer != null)
+					adornerLayer = parentAdornerLayer;
+			} while (parentAdornerLayer != null);
+			return adornerLayer;
 		}
 
 		private void RemoveRectangleAdorner(Rectangle rectangle, AdornerLayer adornerLayer)
@@ -332,7 +369,7 @@ namespace TimeLineControl
 
 			if (adorners.ContainsKey(rectangle))
 			{
-				AdornerLayer myAdornerLayer = AdornerLayer.GetAdornerLayer(rectangle);
+				AdornerLayer myAdornerLayer = GetAdornerLayer(rectangle);
 				myAdornerLayer.Remove(adorners[rectangle]);
 				adorners.Remove(rectangle);
 			}

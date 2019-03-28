@@ -10,7 +10,6 @@ namespace TimeLineControl
 	public class TimeLineEntry : MyObservableObject
 	{
 		//private fields...
-		bool canResize;
 		bool durationLocked;
 		TimeSpan duration;
 		TimeSpan start;
