@@ -16,10 +16,11 @@
 			<DataTemplate DataType="{x:Type local:TimeLineEntry}">
 				<Grid>
 					<!-- Main Rectangle -->
-					<Rectangle Tag="{Binding Index}" Cursor="Hand" Height="24" Fill="#FF2C4B8A" VerticalAlignment="Stretch" HorizontalAlignment="Left" PreviewMouseDown="Rectangle_PreviewMouseDown" PreviewMouseMove="Rectangle_PreviewMouseMove" PreviewMouseUp="Rectangle_PreviewMouseUp">
+					<Rectangle Tag="{Binding Index}" Cursor="Hand" Height="24" Fill="{Binding Fill}" VerticalAlignment="Stretch" HorizontalAlignment="Left" PreviewMouseDown="Rectangle_PreviewMouseDown" PreviewMouseMove="Rectangle_PreviewMouseMove" PreviewMouseUp="Rectangle_PreviewMouseUp">
 						<Rectangle.ContextMenu>
 							<ContextMenu>
-								<MenuItem Header="Set Duration..." Click="MenuItem_Click"></MenuItem>
+								<MenuItem Header="Set Duration..." Click="SetDuration_Click"></MenuItem>
+								<MenuItem Header="Rename..." Click="Rename_Click"></MenuItem>
 							</ContextMenu>
 						</Rectangle.ContextMenu>
 						<Rectangle.Margin>
@@ -67,7 +68,7 @@
 					</Rectangle>
 
 					<!-- Resize Rectangle -->
-					<Rectangle Tag="{Binding Index}" Visibility="{Binding Path=CanResize, Converter={StaticResource boolToVisibilityConverter} }" Cursor="SizeWE" Width="6" Height="24" Fill="#FF778FBF" VerticalAlignment="Stretch" HorizontalAlignment="Left" PreviewMouseDown="ResizeRectangle_PreviewMouseDown" PreviewMouseMove="ResizeRectangle_PreviewMouseMove" PreviewMouseUp="Rectangle_PreviewMouseUp">
+					<Rectangle Tag="{Binding Index}" Visibility="{Binding Path=CanResize, Converter={StaticResource boolToVisibilityConverter} }" Cursor="SizeWE" Width="6" Height="24" Fill="{Binding Fill}" Opacity="0.5" VerticalAlignment="Stretch" HorizontalAlignment="Left" PreviewMouseDown="ResizeRectangle_PreviewMouseDown" PreviewMouseMove="ResizeRectangle_PreviewMouseMove" PreviewMouseUp="Rectangle_PreviewMouseUp">
 						<Rectangle.Margin>
 							<MultiBinding Converter="{StaticResource timeLineEntryConverter}">
 								<Binding Path="TotalDuration">
@@ -92,7 +93,7 @@
 					</Rectangle>
 					
 					<!--Entry Name-->
-					<TextBlock Text="{Binding Name}" Height="Auto" Foreground="White" Padding="3,3,3,3" IsHitTestVisible="False">
+					<TextBlock Text="{Binding Name}" Height="Auto" Foreground="{Binding Foreground}" Padding="3,3,3,3" IsHitTestVisible="False">
 						<TextBlock.Margin>
 							<MultiBinding Converter="{StaticResource timeLineEntryConverter}">
 								<Binding Path="TotalDuration">

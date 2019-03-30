@@ -25,14 +25,21 @@ namespace TimeLineControl
 	public partial class TimeLine : UserControl
 	{
 		public static readonly DependencyProperty MinEntryDurationProperty = DependencyProperty.Register("MinEntryDuration", typeof(double), typeof(TimeLine), new FrameworkPropertyMetadata(0.1, new PropertyChangedCallback(OnMinEntryDurationChanged), new CoerceValueCallback(OnCoerceMinEntryDuration)));
-		
 
 		TimeSpan mouseDownTime;
+
+		public event SelectionChangedEventHandler SelectionChanged;
 
 		public TimeLine()
 		{
 			InitializeComponent();
 			MinEntryDuration = 0.1;
+			lbTimeEntries.SelectionChanged += LbTimeEntries_SelectionChanged;
+		}
+
+		private void LbTimeEntries_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			SelectionChanged?.Invoke(this, e);
 		}
 
 		public static readonly DependencyProperty TotalDurationProperty = DependencyProperty.Register("TotalDuration", typeof(TimeSpan), typeof(TimeLine), new FrameworkPropertyMetadata(TimeSpan.Zero, new PropertyChangedCallback(OnTotalDurationChanged), new CoerceValueCallback(OnCoerceTotalDuration)));
@@ -120,7 +127,6 @@ namespace TimeLineControl
 			// TODO: Add your property changed side-effects. Descendants can override as well.
 		}
 
-
 		public double MinEntryDuration
 		{
 			// IMPORTANT: To maintain parity between setting a property in XAML and procedural code, do not touch the getter and setter inside this dependency property!
@@ -187,6 +193,8 @@ namespace TimeLineControl
 				}
 			}
 		}
+
+		public object SelectedItem { get => lbTimeEntries.SelectedItem; set => lbTimeEntries.SelectedItem = value; }
 
 		private void TimeLineEntry_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
@@ -393,7 +401,7 @@ namespace TimeLineControl
 			HandleMouseDown(sender, e, EventMoveType.Duration);
 		}
 
-		private void MenuItem_Click(object sender, RoutedEventArgs e)
+		private void SetDuration_Click(object sender, RoutedEventArgs e)
 		{
 			if (!(sender is MenuItem menuItem && menuItem.DataContext is TimeLineEntry timeLineEntry))
 				return;
@@ -412,6 +420,22 @@ namespace TimeLineControl
 					timeLineEntry.Duration = Timeout.InfiniteTimeSpan;
 				else
 					timeLineEntry.Duration = TimeSpan.FromSeconds(Math.Max(MinEntryDuration, frmSetDuration.Duration));
+			}
+		}
+
+		private void Rename_Click(object sender, RoutedEventArgs e)
+		{
+			// TODO: inline the rename so there's no modal popup UI.
+		}
+		public void DeleteSelected()
+		{
+			if (ItemsSource is System.Collections.ObjectModel.ObservableCollection<TimeLineEntry> entries)
+			{
+				entries.Remove(SelectedItem as TimeLineEntry);
+				for (int i = 0; i < entries.Count; i++)
+				{
+					entries[i].Index = i;
+				}
 			}
 		}
 	}

@@ -4,15 +4,42 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Windows.Media;
 
 namespace TimeLineControl
 {
 	public class TimeLineEntry : MyObservableObject
 	{
 		//private fields...
+		Brush fill;
+		Brush foreground;
 		bool durationLocked;
 		TimeSpan duration;
 		TimeSpan start;
+
+		
+		public Brush Fill
+		{
+			get { return fill; }
+			set
+			{
+				if (fill == value)
+					return;
+				fill = value;
+				OnPropertyChanged();
+			}
+		}
+		public Brush Foreground
+		{
+			get { return foreground; }
+			set
+			{
+				if (foreground == value)
+					return;
+				foreground = value;
+				OnPropertyChanged();
+			}
+		}
 
 		public TimeSpan Start
 		{
@@ -37,6 +64,7 @@ namespace TimeLineControl
 				durationLocked = value;
 				OnPropertyChanged();
 				OnPropertyChanged("DurationUnlocked");
+				OnPropertyChanged("CanResize");
 			}
 		}
 
@@ -128,12 +156,28 @@ namespace TimeLineControl
 			}
 		}
 
-		public int Index { get; set; }
+		int index;
+		public int Index
+		{
+			get
+			{
+				return index;
+			}
+			set
+			{
+				if (index == value)
+					return;
+
+				index = value;
+				OnPropertyChanged();
+			}
+		}
 
 
 		public TimeLineEntry()
 		{
-
+			foreground = Brushes.White;
+			fill = Brushes.DarkSlateBlue;
 		}
 	}
 }
