@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +25,20 @@ namespace TimeLineControl
 	/// </summary>
 	public partial class TimeLine : UserControl
 	{
+		public static readonly RoutedEvent TimeLineChangedEvent = EventManager.RegisterRoutedEvent("TimeLineChanged", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TimeLine));
+
+		public event RoutedEventHandler TimeLineChanged
+		{
+			add { AddHandler(TimeLineChangedEvent, value); }
+			remove { RemoveHandler(TimeLineChangedEvent, value); }
+		}
+
+		protected virtual void OnTimeLineChanged()
+		{
+			RoutedEventArgs eventArgs = new RoutedEventArgs(TimeLineChangedEvent);
+			RaiseEvent(eventArgs);
+		}
+		
 		public static readonly DependencyProperty MinEntryDurationProperty = DependencyProperty.Register("MinEntryDuration", typeof(double), typeof(TimeLine), new FrameworkPropertyMetadata(0.1, new PropertyChangedCallback(OnMinEntryDurationChanged), new CoerceValueCallback(OnCoerceMinEntryDuration)));
 
 		TimeSpan mouseDownTime;
@@ -39,14 +54,14 @@ namespace TimeLineControl
 
 		private void LbTimeEntries_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
+			if (e.RemovedItems?.Count > 0 && e.RemovedItems[0] is TimeLineEntry timeLineEntry && timeLineEntry.IsRenaming)
+				timeLineEntry.IsRenaming = false;
 			SelectionChanged?.Invoke(this, e);
 		}
 
 		public static readonly DependencyProperty TotalDurationProperty = DependencyProperty.Register("TotalDuration", typeof(TimeSpan), typeof(TimeLine), new FrameworkPropertyMetadata(TimeSpan.Zero, new PropertyChangedCallback(OnTotalDurationChanged), new CoerceValueCallback(OnCoerceTotalDuration)));
 		double mouseDownX;
 		TimeLineEntry entry;
-
-
 
 		private static object OnCoerceMinEntryDuration(DependencyObject o, object value)
 		{
@@ -125,6 +140,7 @@ namespace TimeLineControl
 		protected virtual void OnTotalDurationChanged(TimeSpan oldValue, TimeSpan newValue)
 		{
 			// TODO: Add your property changed side-effects. Descendants can override as well.
+			OnTimeLineChanged();
 		}
 
 		public double MinEntryDuration
@@ -169,7 +185,9 @@ namespace TimeLineControl
 
 		public IEnumerable ItemsSource
 		{
-			get => lbTimeEntries.ItemsSource; set
+			get => lbTimeEntries.ItemsSource;
+
+			set
 			{
 				if (lbTimeEntries.ItemsSource is INotifyCollectionChanged iNotifyPropertyChanged)
 				{
@@ -179,7 +197,6 @@ namespace TimeLineControl
 						timeLineEntry.PropertyChanged -= TimeLineEntry_PropertyChanged;
 					}
 				}
-
 
 				lbTimeEntries.ItemsSource = value;
 
@@ -195,6 +212,8 @@ namespace TimeLineControl
 		}
 
 		public object SelectedItem { get => lbTimeEntries.SelectedItem; set => lbTimeEntries.SelectedItem = value; }
+		
+
 
 		private void TimeLineEntry_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
@@ -226,6 +245,8 @@ namespace TimeLineControl
 			while (parentDepObj != null);
 			return null;
 		}
+
+		// <formula 3; \omega>il Rocks!
 
 		private void HandleMouseDown(object sender, MouseButtonEventArgs e, EventMoveType eventMoveType)
 		{
@@ -384,6 +405,7 @@ namespace TimeLineControl
 
 			rectangle.ReleaseMouseCapture();
 			UpdateTotalDuration();
+			OnTimeLineChanged();
 		}
 
 		private void LbTimeEntries_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -420,23 +442,128 @@ namespace TimeLineControl
 					timeLineEntry.Duration = Timeout.InfiniteTimeSpan;
 				else
 					timeLineEntry.Duration = TimeSpan.FromSeconds(Math.Max(MinEntryDuration, frmSetDuration.Duration));
+				OnTimeLineChanged();
 			}
+		}
+
+		public static T GetChildOfType<T>(DependencyObject depObj, int startingIndex = 0) where T : DependencyObject
+		{
+			if (depObj == null)
+				return null;
+
+			for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+			{
+				var child = VisualTreeHelper.GetChild(depObj, i);
+
+				var result = (child as T) ?? GetChildOfType<T>(child);
+				if (result != null) return result;
+			}
+			return null;
+		}
+
+		private T FindVisualChild<T>(DependencyObject obj) where T : DependencyObject
+		{
+			for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+			{
+				DependencyObject child = VisualTreeHelper.GetChild(obj, i);
+				if (child != null && child is T)
+					return (T)child;
+				else
+				{
+					T childOfChild = FindVisualChild<T>(child);
+					if (childOfChild != null)
+						return childOfChild;
+				}
+			}
+			return null;
+		}
+
+		T GetDataTemplateControl<T>(TimeLineEntry timeLineEntry, string controlName) where T : DependencyObject
+		{
+			ListBoxItem listBoxItem = (ListBoxItem)(lbTimeEntries.ItemContainerGenerator.ContainerFromItem(timeLineEntry));
+
+			ContentPresenter contentPresenter = FindVisualChild<ContentPresenter>(listBoxItem);
+
+			DataTemplate myDataTemplate = contentPresenter.ContentTemplate;
+			T result = (T)myDataTemplate.FindName(controlName, contentPresenter);
+			return result;
 		}
 
 		private void Rename_Click(object sender, RoutedEventArgs e)
 		{
 			// TODO: inline the rename so there's no modal popup UI.
+			if (SelectedItem is TimeLineEntry timeLineEntry)
+			{
+				TextBox textBox = GetDataTemplateControl<TextBox>(timeLineEntry, "TextBox");
+				if (textBox != null)
+				{
+					textBox.SelectAll();
+					textBox.Focus();
+				}
+
+				timeLineEntry.IsRenaming = true;
+			}
 		}
 		public void DeleteSelected()
 		{
-			if (ItemsSource is System.Collections.ObjectModel.ObservableCollection<TimeLineEntry> entries)
+			if (ItemsSource == null)
+				return;
+
+			// Uses reflection to allow users of this timeline to set the ItemsSource to an ObservableCollection<*TimeLineEntryDescendant*>...
+
+			MethodInfo method = ItemsSource.GetType().GetMethod("Remove", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+			if (method == null)
+				return;
+
+			method.Invoke(ItemsSource, new object[] { SelectedItem });
+
+			// We need to re-index the elements in the timeline...
+			IEnumerator enumerator = ItemsSource.GetEnumerator();
+			if (enumerator != null)
 			{
-				entries.Remove(SelectedItem as TimeLineEntry);
-				for (int i = 0; i < entries.Count; i++)
+				int i = 0;
+				while (enumerator.MoveNext())
 				{
-					entries[i].Index = i;
+					if (enumerator.Current is TimeLineEntry timeLineEntry)
+						timeLineEntry.Index = i;
+					i++;
 				}
 			}
+			OnTimeLineChanged();
+			//if (ItemsSource is System.Collections.ObjectModel.ObservableCollection<TimeLineEffect> entries)
+			//{
+			//	entries.Remove(SelectedItem as TimeLineEntry);
+			//	for (int i = 0; i < entries.Count; i++)
+			//	{
+			//		entries[i].Index = i;
+			//	}
+			//	
+			//}
+		}
+
+		private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			OnTimeLineChanged();
+		}
+
+		private void TextBox_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (!(SelectedItem is TimeLineEntry timeLineEntry))
+				return;
+			if (e.Key == Key.Enter)
+				timeLineEntry.IsRenaming = false;
+			if (e.Key == Key.Escape)
+			{
+				timeLineEntry.CancelRename();
+				OnTimeLineChanged();
+			}
+		}
+
+		private void TextBox_LostFocus(object sender, RoutedEventArgs e)
+		{
+			if (!(SelectedItem is TimeLineEntry timeLineEntry))
+				return;
+			timeLineEntry.IsRenaming = false;
 		}
 	}
 }

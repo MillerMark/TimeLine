@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace TimeLineControl
 {
-	public class TimeLineData : MyObservableObject
+public class TimeLineData : MyObservableObject
 	{
 		private ObservableCollection<TimeLineEntry> entries = new ObservableCollection<TimeLineEntry>();
 
@@ -12,6 +12,8 @@ namespace TimeLineControl
 		{
 			entries.CollectionChanged += Entries_CollectionChanged;
 		}
+
+
 
 		private void Entries_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{

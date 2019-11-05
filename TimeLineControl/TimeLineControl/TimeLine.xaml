@@ -93,7 +93,7 @@
 					</Rectangle>
 					
 					<!--Entry Name-->
-					<TextBlock Text="{Binding Name}" Height="Auto" Foreground="{Binding Foreground}" Padding="3,3,3,3" IsHitTestVisible="False">
+					<TextBlock Text="{Binding Name}" Visibility="{Binding Path=IsDisplaying, Converter={StaticResource boolToVisibilityConverter} }" Height="Auto" Foreground="{Binding Foreground}" Padding="3,3,3,3" IsHitTestVisible="False">
 						<TextBlock.Margin>
 							<MultiBinding Converter="{StaticResource timeLineEntryConverter}">
 								<Binding Path="TotalDuration">
@@ -137,6 +137,52 @@
 							</MultiBinding>
 						</TextBlock.Width>
 					</TextBlock>
+
+					<TextBox Text="{Binding Name,Mode=TwoWay}" Name="TextBox"  Visibility="{Binding Path=IsRenaming, Converter={StaticResource boolToVisibilityConverter} }" Background="{Binding Fill}" Height="Auto" Foreground="{Binding Foreground}" Padding="0,2,0,0" 
+									 TextChanged="TextBox_TextChanged" KeyDown="TextBox_KeyDown" LostFocus="TextBox_LostFocus">
+						<TextBox.Margin>
+							<MultiBinding Converter="{StaticResource timeLineEntryConverter}">
+								<Binding Path="TotalDuration">
+									<Binding.RelativeSource>
+										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
+									</Binding.RelativeSource>
+								</Binding>
+								<Binding Path="Start"/>
+								<Binding Path="ActualWidth">
+									<Binding.RelativeSource>
+										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
+									</Binding.RelativeSource>
+								</Binding>
+								<Binding Path="Start"/>
+								<Binding Path="End">
+									<Binding.RelativeSource>
+										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
+									</Binding.RelativeSource>
+								</Binding>
+							</MultiBinding>
+						</TextBox.Margin>
+						<TextBox.Width>
+							<MultiBinding Converter="{StaticResource timeLineEntryConverter}">
+								<Binding Path="TotalDuration">
+									<Binding.RelativeSource>
+										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
+									</Binding.RelativeSource>
+								</Binding>
+								<Binding Path="Duration"/>
+								<Binding Path="ActualWidth">
+									<Binding.RelativeSource>
+										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
+									</Binding.RelativeSource>
+								</Binding>
+								<Binding Path="Start"/>
+								<Binding Path="End">
+									<Binding.RelativeSource>
+										<RelativeSource Mode="FindAncestor" AncestorType="{x:Type local:TimeLine}"/>
+									</Binding.RelativeSource>
+								</Binding>
+							</MultiBinding>
+						</TextBox.Width>
+					</TextBox>
 
 					<!--Infinity Marker-->
 					<TextBlock Text="∞" Width="20" Foreground="#FFD1D9E8" HorizontalAlignment="Right" Visibility="{Binding Path=IsInfinite, Converter={StaticResource boolToVisibilityConverter} }"  Height="Auto" Padding="3,3,3,3" IsHitTestVisible="False">

@@ -11,13 +11,14 @@ namespace TimeLineControl
 	public class TimeLineEntry : MyObservableObject
 	{
 		//private fields...
+		bool isDisplaying;
 		Brush fill;
 		Brush foreground;
 		bool durationLocked;
 		TimeSpan duration;
 		TimeSpan start;
 
-		
+
 		public Brush Fill
 		{
 			get { return fill; }
@@ -68,7 +69,8 @@ namespace TimeLineControl
 			}
 		}
 
-		
+
+
 		public bool CanResize
 		{
 			get { return !DurationLocked && !IsInfinite; }
@@ -82,7 +84,7 @@ namespace TimeLineControl
 				return Duration == Timeout.InfiniteTimeSpan;
 			}
 		}
-		
+
 
 
 		[EditorBrowsable(EditorBrowsableState.Never)]
@@ -117,7 +119,7 @@ namespace TimeLineControl
 				return start + duration;
 			}
 		}
-		
+
 
 		string name;
 		public string Name
@@ -173,11 +175,53 @@ namespace TimeLineControl
 			}
 		}
 
+		bool isRenaming;
+		string saveName;
+
+		public bool IsRenaming
+		{
+			get
+			{
+				return isRenaming;
+			}
+			set
+			{
+				isRenaming = value;
+				if (isRenaming)
+					saveName = Name;
+				OnPropertyChanged();
+				OnPropertyChanged(nameof(IsDisplaying));
+			}
+		}
+
+		public void CancelRename()
+		{
+			Name = saveName;
+			OnPropertyChanged("Name");
+			IsRenaming = false;
+		}
+
+
+		public bool IsDisplaying
+		{
+			get { return isDisplaying; }
+			set
+			{
+				if (isDisplaying == value)
+					return;
+				isDisplaying = value;
+				OnPropertyChanged();
+				OnPropertyChanged(nameof(IsRenaming));
+			}
+		}
+		
+
 
 		public TimeLineEntry()
 		{
 			foreground = Brushes.White;
 			fill = Brushes.DarkSlateBlue;
+			IsDisplaying = true;
 		}
 	}
 }
